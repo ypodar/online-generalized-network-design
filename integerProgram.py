@@ -55,9 +55,9 @@ for path in xval:
                            gb.quicksum(xval[path][edge] for edge in lin_network.select(node, '*', '*')) == val)
 
 for edge in network:
-    # linModel.addConstr(gb.quicksum(z[edge][i] for i in tuple_i) == 1)
+    linModel.addConstr(gb.quicksum(z[edge][i] for i in tuple_i) == 1)
     for i in range(0, k + 1):
-        linModel.addConstr(k * z[edge][i] >= flow[edge] - i + 1)
+#        linModel.addConstr(k * z[edge][i] >= flow[edge] - i + 1)
         linModel.addConstr(k * (1 - z[edge][i]) >= i - flow[edge])
         linModel.addConstr(k * (1 - z[edge][i]) >= flow[edge] - i)
 
