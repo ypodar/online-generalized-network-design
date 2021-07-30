@@ -1,4 +1,4 @@
-'''use objective on slide 16 - sum for all edges of all i values for each edge
+"""use objective on slide 16 - sum for all edges of all i values for each edge
 z values is a 2D array, each edge has a list of i values
 add another constraint that sum of z(e,i) for each i == 1
 x and z values can be binary, leave f continuous
@@ -12,16 +12,25 @@ NOTES:
     xval - nested dictionary with list
     z - nested dictionary with list
     i - list
-'''
+"""
 
 import gurobipy as gb
+import random
 from gurobipy import GRB
 import main
 
 # network: list(start, end, weight), outputpairs: list(s,t), alpha: dict(edge:alphaval), qval: dict(edge:qval)
-network, outputpairs, alpha, qval, sigma = main.algo_main()
-print(network)
-print(outputpairs)
+numPairs = 15
+network, outputpairs, alpha, qval, sigma = main.networkGen(numPairs)
+output = {}
+for x in range(10):
+    random.shuffle(outputpairs)
+    if output.get(main.algo_main(network, outputpairs, alpha, qval)) is None:
+        output[main.algo_main(network, outputpairs, alpha, qval)] = 1
+    else:
+        output[main.algo_main(network, outputpairs, alpha, qval)] += 1
+
+print(output)
 nodes = []
 for edge in network:
     if (edge[0] == '0') and (edge[1] not in nodes):
@@ -29,7 +38,6 @@ for edge in network:
     elif (edge[1] == '0') and (edge[0] not in nodes):
         nodes.append(edge[0])
 nodes.append('0')
-print(nodes)
 lin_network = gb.tuplelist(network)
 linModel = gb.Model("Integer Program")
 flow = linModel.addVars(lin_network, vtype=GRB.CONTINUOUS, name="Flow", lb=0)
@@ -41,7 +49,6 @@ for i in outputpairs:
     xval[i] = linModel.addVars(lin_network, vtype=GRB.BINARY)
 for j in network:
     z[j] = linModel.addVars(tuple_i)
-                            #, vtype=GRB.BINARY)
     linModel.addConstr(flow[j] == gb.quicksum(xval[pair][j] for pair in outputpairs))
 for path in xval:
     for node in nodes:
@@ -57,7 +64,7 @@ for path in xval:
 for edge in network:
     linModel.addConstr(gb.quicksum(z[edge][i] for i in tuple_i) == 1)
     for i in range(0, k + 1):
-#        linModel.addConstr(k * z[edge][i] >= flow[edge] - i + 1)
+        # linModel.addConstr(k * z[edge][i] >= flow[edge] - i + 1)
         linModel.addConstr(k * (1 - z[edge][i]) >= i - flow[edge])
         linModel.addConstr(k * (1 - z[edge][i]) >= flow[edge] - i)
 

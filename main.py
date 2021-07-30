@@ -110,7 +110,7 @@ def dijkstra2(graph, initial, end, psi=True):
 
 # string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnoqrstuvwxyz"
 max_weight = 15
-max_nodes = 3
+max_nodes = 26
 num_edges = random.randint(max_nodes, (max_nodes * (max_nodes - 1)))
 
 
@@ -129,8 +129,9 @@ def networkGen(k):
     sigma = {}
     qval = {}
     outputpairs = []
-
-    for i in range(num_edges):
+    i = 0
+    j = 0
+    while i < num_edges:
         weight = random.randint(1, max_weight)
         x = random.choice(list(range(max_nodes)))
         y = random.choice(list(range(max_nodes)))
@@ -164,15 +165,13 @@ def networkGen(k):
                 sigma[('0', y)] = random.uniform(1, (0.3 * k) ** alpha[('0', y)])
                 qval[(y, '0')] = sigma[(y, '0')] ** (1 / alpha[(y, '0')])
                 qval[('0', y)] = sigma[('0', y)] ** (1 / alpha[('0', y)])
-        else:
-            i -= 1
-    for j in range(k):
+            i += 1
+    while j < k:
         s = random.choice(edges)
         t = random.choice(edges)
         if s != t and (s, t) not in outputpairs:
             outputpairs.append((s, t))
-        else:
-            j -= 1
+            j += 1
     return network, outputpairs, alpha, qval, sigma
 
 
@@ -200,19 +199,16 @@ def algorithm(graph, pair, alpha, qval):
 
 
 # generates a network and pairs, continues to run until all pairs are completed
-def algo_main():
+def algo_main(network, pairs, alpha, qval):
     x = aList()
     algo_sum = 0
-    k = 1  # number of pairs created
-    network, pairs, alpha, qval, sigma = networkGen(k)
     for edge in network:
         x.add_edge(*edge)
     for i in pairs:
         algorithm(x, i, alpha, qval)
     for j in alpha:
         algo_sum += x.weights[j] * (x.load[j] ** alpha[j])
-    print(algo_sum, ": Algorithm Value")
-    return network, pairs, alpha, qval, sigma
+    return algo_sum
 
 # x = aList()
 # network = networkGen()
