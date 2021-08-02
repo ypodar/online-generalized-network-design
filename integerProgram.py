@@ -25,10 +25,10 @@ network, outputpairs, alpha, qval, sigma = main.networkGen(numPairs)
 output = {}
 for x in range(10):
     random.shuffle(outputpairs)
-    if output.get(main.algo_main(network, outputpairs, alpha, qval)) is None:
-        output[main.algo_main(network, outputpairs, alpha, qval)] = 1
+    if output.get(main.algo_main(network, outputpairs, alpha, qval, sigma)) is None:
+        output[main.algo_main(network, outputpairs, alpha, qval, sigma)] = 1
     else:
-        output[main.algo_main(network, outputpairs, alpha, qval)] += 1
+        output[main.algo_main(network, outputpairs, alpha, qval, sigma)] += 1
 
 print(output)
 nodes = []

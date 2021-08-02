@@ -199,7 +199,7 @@ def algorithm(graph, pair, alpha, qval):
 
 
 # generates a network and pairs, continues to run until all pairs are completed
-def algo_main(network, pairs, alpha, qval):
+def algo_main(network, pairs, alpha, qval, sigma):
     x = aList()
     algo_sum = 0
     for edge in network:
@@ -207,7 +207,10 @@ def algo_main(network, pairs, alpha, qval):
     for i in pairs:
         algorithm(x, i, alpha, qval)
     for j in alpha:
-        algo_sum += x.weights[j] * (x.load[j] ** alpha[j])
+        #  algo_sum += x.weights[j] * (x.load[j] ** alpha[j])
+        algo_sum += x.load[j] ** alpha[j]
+        if x.load[j] >= 1:
+            algo_sum += sigma[j]
     return algo_sum
 
 # x = aList()
