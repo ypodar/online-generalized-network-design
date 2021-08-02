@@ -6,7 +6,6 @@ figure out how to use tuplelist and tupledict to implement f, x and z values
 same constraints as convex program as they are integer constraints
 run multiple times - for same network - run IP once, and compare to algorithm with different orders of (s,t) pair -
 store on excel sheet
-
 NOTES:
     flow - tuplelist
     xval - nested dictionary with list
@@ -20,7 +19,7 @@ from gurobipy import GRB
 import main
 
 # network: list(start, end, weight), outputpairs: list(s,t), alpha: dict(edge:alphaval), qval: dict(edge:qval)
-numPairs = 15
+numPairs = 7
 network, outputpairs, alpha, qval, sigma = main.networkGen(numPairs)
 output = {}
 for x in range(10):
@@ -48,7 +47,7 @@ tuple_i = gb.tuplelist(list(range(0, k + 1)))  # [0:k]
 for i in outputpairs:
     xval[i] = linModel.addVars(lin_network, vtype=GRB.BINARY)
 for j in network:
-    z[j] = linModel.addVars(tuple_i)
+    z[j] = linModel.addVars(tuple_i, vtype=GRB.BINARY)
     linModel.addConstr(flow[j] == gb.quicksum(xval[pair][j] for pair in outputpairs))
 for path in xval:
     for node in nodes:
@@ -68,8 +67,8 @@ for edge in network:
         linModel.addConstr(k * (1 - z[edge][i]) >= i - flow[edge])
         linModel.addConstr(k * (1 - z[edge][i]) >= flow[edge] - i)
 
-linModel.setObjective(gb.quicksum(gb.quicksum(((z[edge][i] * (i ** alpha[(edge[0], edge[1])])) +
-                                               (sigma[(edge[0], edge[1])] * (1 - z[edge][0]))) for i in tuple_i) for
+linModel.setObjective(gb.quicksum(gb.quicksum(((z[edge][i] * (i ** alpha[(edge[0], edge[1])])) for i in tuple_i))+
+                                               (sigma[(edge[0], edge[1])] * (1 - z[edge][0]))  for
                                   edge in lin_network), GRB.MINIMIZE)
 linModel.optimize()
 
