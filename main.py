@@ -15,7 +15,7 @@ class aList:
         self.psi = {}
 
     def add_edge(self, from_node, to_node, weight):
-        # Note: assumes edges are bi-directional
+        # Note: assumes edges are uni-directional
         self.edges[from_node].append(to_node)
         # self.edges[to_node].append(from_node)
         self.weights[(from_node, to_node)] = weight
@@ -110,7 +110,7 @@ def dijkstra2(graph, initial, end, psi=True):
 
 # string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnoqrstuvwxyz"
 max_weight = 15
-max_nodes = 26
+max_nodes = 5
 num_edges = random.randint(max_nodes, (max_nodes * (max_nodes - 1)))
 
 
@@ -124,7 +124,7 @@ num_edges = random.randint(max_nodes, (max_nodes * (max_nodes - 1)))
 def networkGen(k):
     network = []
     pairs = []
-    edges = []
+    nodes = []
     alpha = {}
     sigma = {}
     qval = {}
@@ -141,8 +141,8 @@ def networkGen(k):
             alpha[(x, y)] = random.uniform(2, 3)
             sigma[(x, y)] = random.uniform(1, (0.3 * k) ** alpha[(x, y)])
             qval[(x, y)] = sigma[(x, y)] ** (1 / alpha[(x, y)])
-            if x not in edges:
-                edges.append(x)
+            if x not in nodes:
+                nodes.append(x)
                 w1 = random.randint(max_weight * 2, max_weight * 3)
                 w2 = random.randint(max_weight * 2, max_weight * 3)
                 network.append((x, '0', w1))
@@ -153,8 +153,8 @@ def networkGen(k):
                 sigma[('0', x)] = random.uniform(1, (0.3 * k) ** alpha[('0', x)])
                 qval[(x, '0')] = sigma[(x, '0')] ** (1 / alpha[(x, '0')])
                 qval[('0', x)] = sigma[('0', x)] ** (1 / alpha[('0', x)])
-            if y not in edges:
-                edges.append(y)
+            if y not in nodes:
+                nodes.append(y)
                 w1 = random.randint(max_weight * 2, max_weight * 3)
                 w2 = random.randint(max_weight * 2, max_weight * 3)
                 network.append((y, '0', w1))
@@ -167,12 +167,49 @@ def networkGen(k):
                 qval[('0', y)] = sigma[('0', y)] ** (1 / alpha[('0', y)])
             i += 1
     while j < k:
-        s = random.choice(edges)
-        t = random.choice(edges)
+        s = random.choice(nodes)
+        t = random.choice(nodes)
         if s != t and (s, t) not in outputpairs:
             outputpairs.append((s, t))
             j += 1
-    return network, outputpairs, alpha, qval, sigma
+    print("Nodes:", max_nodes)
+    nodes.append('0')
+    return network, outputpairs, nodes, alpha, qval, sigma
+
+
+# takes in edges as a list of (start, node) points. Generates network with each edge and weight, alpha, qval, sigma and
+# pairs
+def networkGen2(k, edges):
+    network = []
+    nodes = []
+    alpha = {}
+    sigma = {}
+    qval = {}
+    outputpairs = []
+    for i in edges:
+        if i[0] not in nodes:
+            nodes.append(i[0])
+        if i[1] not in nodes:
+            nodes.append(i[1])
+        network.append((i[0], i[1], random.randint(1, max_weight)))
+        # append reverse direction
+        network.append((i[1], i[0], random.randint(1, max_weight)))
+        temp = (i[1], i[0])
+        alpha[i] = random.uniform(2, 3)
+        sigma[i] = random.uniform(1, (0.3 * k) ** alpha[i])
+        qval[i] = sigma[i] ** (1 / alpha[i])
+        alpha[temp] = random.uniform(2, 3)
+        sigma[temp] = random.uniform(1, (0.3 * k) ** alpha[temp])
+        qval[temp] = sigma[temp] ** (1 / alpha[temp])
+    j = 0
+    while j < k:
+        s = random.choice(nodes)
+        t = random.choice(nodes)
+        if s != t and (s, t) not in outputpairs:
+            outputpairs.append((s, t))
+            j += 1
+    print("Nodes:", max_nodes)
+    return network, outputpairs, nodes, alpha, qval, sigma
 
 
 # calculates psi values for given load and weights for graph, alpha can be adjusted (default 2)
@@ -181,7 +218,8 @@ def psicalc(graph, alpha, qval):
     for f_node in graph.edges:
         for t_node in graph.edges[f_node]:
             graph.psi[(f_node, t_node)] = (qval[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)) * (1 + (1 / e)) \
-                                          + (alpha[(f_node, t_node)] * (graph.load[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)))
+                                          + (alpha[(f_node, t_node)] * (
+                        graph.load[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)))
             + ((alpha[(f_node, t_node)] ** alpha[(f_node, t_node)]) / e)
             # old psi calculation (without sigma values)
             # graph.psi[(f_node, t_node)] = (alpha * (graph.load[(f_node, t_node)] ** (alpha - 1)) +
