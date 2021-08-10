@@ -6,13 +6,13 @@ import gurobipy as gb
 from gurobipy import GRB
 
 # (initial, end, weight), (s,t), ((initial, end) : alpha)
-network, outputpairs, alpha, qval, sigma = main.algo_main()
-nodes = []
-for edge in network:
-    if (edge[0] == '0') and (edge[1] not in nodes):
-        nodes.append(edge[1])
-    elif (edge[1] == '0') and (edge[0] not in nodes):
-        nodes.append(edge[0])
+network, outputpairs, nodes, alpha, qval, sigma = main.algo_main()
+# nodes = []
+# for edge in network:
+#     if (edge[0] == '0') and (edge[1] not in nodes):
+#         nodes.append(edge[1])
+#     elif (edge[1] == '0') and (edge[0] not in nodes):
+#         nodes.append(edge[0])
 
 
 # make a dictionary for flow where key = (initial, end , weight) from network

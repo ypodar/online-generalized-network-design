@@ -5,6 +5,8 @@
 from collections import defaultdict
 import random
 from math import e
+import ast
+
 
 
 class aList:
@@ -138,7 +140,7 @@ def networkGen(k):
         if x != y and (x, y) not in pairs:
             pairs.append((x, y))
             network.append((x, y, weight))
-            alpha[(x, y)] = random.uniform(2, 3)
+            alpha[(x, y)] = random.randint(2, 3)
             sigma[(x, y)] = random.uniform(1, (0.3 * k) ** alpha[(x, y)])
             qval[(x, y)] = sigma[(x, y)] ** (1 / alpha[(x, y)])
             if x not in nodes:
@@ -178,8 +180,9 @@ def networkGen(k):
 
 
 # takes in edges as a list of (start, node) points. Generates network with each edge and weight, alpha, qval, sigma and
-# pairs
-def networkGen2(k, edges):
+# k pairs. vtype is 'c' for continuous alpha values [1.1, 3], 'd' for discrete alpha values = [2,3]
+# defaults to continuous alpha values
+def networkGen2(k, edges, vtype="c"):
     network = []
     nodes = []
     alpha = {}
@@ -191,16 +194,23 @@ def networkGen2(k, edges):
             nodes.append(i[0])
         if i[1] not in nodes:
             nodes.append(i[1])
+        # weight needed to work with current algorithm implementation - can be removed by editing how networks are read
+        # in by the aList() class
         network.append((i[0], i[1], random.randint(1, max_weight)))
         # append reverse direction
         network.append((i[1], i[0], random.randint(1, max_weight)))
         temp = (i[1], i[0])
-        alpha[i] = random.uniform(2, 3)
+        if vtype.lower() == "d":
+            # discrete
+            alpha[i] = random.randint(2, 3)
+        else:
+            # continuous
+            alpha[i] = random.uniform(1.1, 3)
         sigma[i] = random.uniform(1, (0.3 * k) ** alpha[i])
         qval[i] = sigma[i] ** (1 / alpha[i])
-        alpha[temp] = random.uniform(2, 3)
-        sigma[temp] = random.uniform(1, (0.3 * k) ** alpha[temp])
-        qval[temp] = sigma[temp] ** (1 / alpha[temp])
+        alpha[temp] = alpha[i]
+        sigma[temp] = sigma[i]
+        qval[temp] = qval[i]
     j = 0
     while j < k:
         s = random.choice(nodes)
@@ -208,9 +218,48 @@ def networkGen2(k, edges):
         if s != t and (s, t) not in outputpairs:
             outputpairs.append((s, t))
             j += 1
-    print("Nodes:", max_nodes)
+    #
+    # print("Nodes:", max_nodes)
     return network, outputpairs, nodes, alpha, qval, sigma
 
+
+# network: abilene/nsf, vtype:continuous(c) or discrete(d), k: num of pairs, num: instance #
+# alpha, sigma, and pairs to be written to file
+def fileGen(edges, networkname, vtype, k, num):
+    network, outputpairs, nodes, alpha, qval, sigma = networkGen2(k, edges, vtype)
+    string = networkname + "_" + vtype + "_k" + str(k) + "_" + str(num) + ".txt"
+    f = open(string, "w+")
+    f.write(str(alpha) + "\n")
+    # f.write(": Alpha\n")
+    f.write(str(sigma) + "\n")
+    # f.write(": Sigma\n")
+    f.write(str(outputpairs) + "\n")
+    # f.write(": Pairs")
+    f.close()
+    return string
+
+# reads from a file, compute
+def fileRead(filename):
+    name = filename.split("_")
+    f = open(filename, "r")
+    alpha = ast.literal_eval(f.readline())
+    sigma = ast.literal_eval(f.readline())
+    pairs = ast.literal_eval(f.readline())
+    nodes = []
+    network = []
+    qval = {}
+    for i in alpha:
+        if i[0] not in nodes:
+            nodes.append(i[0])
+        if i[1] not in nodes:
+            nodes.append(i[1])
+        # weight needed to work with current algorithm implementation - can be removed by editing how networks are read
+        # in by the aList() class
+        network.append((i[0], i[1], random.randint(1, max_weight)))
+        qval[i] = sigma[i] ** (1 / alpha[i])
+    return network, pairs, nodes, alpha, qval, sigma
+
+fileRead("abilene_c_k5_1.txt")
 
 # calculates psi values for given load and weights for graph, alpha can be adjusted (default 2)
 # sigma has to be added (and then formula changed)
@@ -219,7 +268,7 @@ def psicalc(graph, alpha, qval):
         for t_node in graph.edges[f_node]:
             graph.psi[(f_node, t_node)] = (qval[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)) * (1 + (1 / e)) \
                                           + (alpha[(f_node, t_node)] * (
-                        graph.load[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)))
+                    graph.load[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)))
             + ((alpha[(f_node, t_node)] ** alpha[(f_node, t_node)]) / e)
             # old psi calculation (without sigma values)
             # graph.psi[(f_node, t_node)] = (alpha * (graph.load[(f_node, t_node)] ** (alpha - 1)) +

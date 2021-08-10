@@ -1,30 +1,21 @@
-"""use objective on slide 16 - sum for all edges of all i values for each edge
-z values is a 2D array, each edge has a list of i values
-add another constraint that sum of z(e,i) for each i == 1
-x and z values can be binary, leave f continuous
-figure out how to use tuplelist and tupledict to implement f, x and z values
-same constraints as convex program as they are integer constraints
-run multiple times - for same network - run IP once, and compare to algorithm with different orders of (s,t) pair -
-store on excel sheet
-NOTES:
-    flow - tuplelist
-    xval - nested dictionary with list
-    z - nested dictionary with list
-    i - list
-"""
 
 import gurobipy as gb
 import random
 from gurobipy import GRB
 import main
 
-abilene = [(1, 0), (1, 3), (0, 3), (0, 2), (2, 5), (3, 4), (4, 5), (4, 6), (5, 7), (6, 8), (7, 9), (8, 9)]
+abilene = [(1, 0), (1, 3), (0, 3), (0, 2), (2, 5), (3, 4), (4, 5), (4, 6), (5, 7), (6, 8), (7, 9), (8, 9)]  # 10 nodes
 nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), (4, 6), (5, 7), (5, 12), (6, 8), (7, 9),
-       (8, 9), (9, 13), (9, 11), (10, 13), (11, 12), (12, 13)]
+       (8, 9), (9, 13), (9, 11), (10, 13), (11, 12), (12, 13)]  # 14 nodes
 # network: list(start, end, weight), outputpairs: list(s,t), alpha: dict(edge:alphaval), qval: dict(edge:qval)
-numPairs = 10
-# network, outputpairs, nodes, alpha, qval, sigma = main.networkGen(numPairs)
-network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, nsf)
+numPairs = 5 # run between 5, 10, and 20
+# network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, abilene)
+
+# to run reader - change between nsf and abilene for first 2 parameters. c/d for 3rd, # of pairs to generate for 4th,
+# and instance # for 5th
+network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(nsf, "nsf", "d", numPairs, 2))
+
+print("----------Algorithm----------")
 output = {}
 print("Pairs:", numPairs)
 for x in range(10):
@@ -35,13 +26,8 @@ for x in range(10):
         output[main.algo_main(network, outputpairs, alpha, qval, sigma)] += 1
 
 print(output)
-# nodes = []
-# for edge in network:
-#     if (edge[0] == '0') and (edge[1] not in nodes):
-#         nodes.append(edge[1])
-#     elif (edge[1] == '0') and (edge[0] not in nodes):
-#         nodes.append(edge[0])
-# nodes.append('0')
+
+print("----------Integer Program----------")
 lin_network = gb.tuplelist(network)
 linModel = gb.Model("Integer Program")
 flow = linModel.addVars(lin_network, vtype=GRB.CONTINUOUS, name="Flow", lb=0)
