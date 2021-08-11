@@ -8,12 +8,13 @@ abilene = [(1, 0), (1, 3), (0, 3), (0, 2), (2, 5), (3, 4), (4, 5), (4, 6), (5, 7
 nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), (4, 6), (5, 7), (5, 12), (6, 8), (7, 9),
        (8, 9), (9, 13), (9, 11), (10, 13), (11, 12), (12, 13)]  # 14 nodes
 # network: list(start, end, weight), outputpairs: list(s,t), alpha: dict(edge:alphaval), qval: dict(edge:qval)
-numPairs = 5 # run between 5, 10, and 20
+numPairs = 10 # run between 5, 10, and 20
 # network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, abilene)
 
 # to run reader - change between nsf and abilene for first 2 parameters. c/d for 3rd, # of pairs to generate for 4th,
 # and instance # for 5th
-network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(nsf, "nsf", "d", numPairs, 2))
+network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(abilene, "abilene", "c", numPairs, 4))
+# network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(".txt")
 
 print("----------Algorithm----------")
 output = {}

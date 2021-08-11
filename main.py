@@ -24,50 +24,6 @@ class aList:
         # self.weights[(to_node, from_node)] = weight
         self.load[(from_node, to_node)] = 0
 
-    # def add_node(self, node):
-    #     if node not in self.nodeList:
-    #         self.nodeList.append(node)
-    #     else:
-    #         print("Node already exists")
-    #
-    # def add_edge(self, node1, node2, weight):
-    #     if node1 in self.nodeList and node2 in self.nodeList:
-    #         if node1 not in self.adj_list:
-    #             self.adj_list[node1] = {node2: weight}
-    #         else:
-    #             self.adj_list[node1][node2] = weight
-    #         if node2 not in self.adj_list:
-    #             self.adj_list[node2] = {node1: weight}
-    #         else:
-    #             self.adj_list[node2][node1] = weight
-    #
-    #     else:
-    #         print("Nodes don't exist")
-
-    # def graph(self):
-    #     for node in self.adj_list:
-    #         print(node, " ---> ", [i for i in self.adj_list[node]])
-
-
-# def dijkstra(nodes, distances, startNode):
-#     unvisited = {node: float('inf') for node in nodes}
-#     visited = {}
-#     current = startNode
-#     currentDistance = 0
-#     unvisited[current] = currentDistance
-#
-#     while True:
-#         for neighbour, distance in distances[current].items():
-#             if neighbour not in unvisited: continue
-#             newDistance = currentDistance + distance
-#             if unvisited[neighbour] is None or unvisited[neighbour] > newDistance:
-#                 unvisited[neighbour] = newDistance
-#         visited[current] = currentDistance
-#         del unvisited[current]
-#         if not unvisited: break
-#         candidates = [node for node in unvisited.items() if node[1]]
-#         current, currentDistance = sorted(candidates, key=lambda x: x[1])[0]
-#     return visited
 
 # finds shortest path between initial and end node, default is using graph.psi, else uses graph.weights
 # returns path in the form of [initial, ... , end]
@@ -223,7 +179,7 @@ def networkGen2(k, edges, vtype="c"):
     return network, outputpairs, nodes, alpha, qval, sigma
 
 
-# network: abilene/nsf, vtype:continuous(c) or discrete(d), k: num of pairs, num: instance #
+# network: abilene/nsf, vtype:continuous(c) or discrete(d) alpha values, k: num of pairs, num: instance #
 # alpha, sigma, and pairs to be written to file
 def fileGen(edges, networkname, vtype, k, num):
     network, outputpairs, nodes, alpha, qval, sigma = networkGen2(k, edges, vtype)
@@ -259,7 +215,6 @@ def fileRead(filename):
         qval[i] = sigma[i] ** (1 / alpha[i])
     return network, pairs, nodes, alpha, qval, sigma
 
-fileRead("abilene_c_k5_1.txt")
 
 # calculates psi values for given load and weights for graph, alpha can be adjusted (default 2)
 # sigma has to be added (and then formula changed)
@@ -299,23 +254,3 @@ def algo_main(network, pairs, alpha, qval, sigma):
         if x.load[j] >= 1:
             algo_sum += sigma[j]
     return algo_sum
-
-# x = aList()
-# network = networkGen()
-# for edge in network:
-#     print(edge)
-#     x.add_edge(*edge)
-
-# x.add_edge('A', 'B', 1)
-# x.add_edge('B', 'D', 4)
-# x.add_edge('C', 'B', 3)
-# x.add_edge('A', 'C', 1)
-# x.add_edge('A', 'E', 5)
-# x.add_edge('A', 'F', 5)
-# x.add_edge('E', 'C', 5)
-# x.add_edge('E', 'F', 11)
-# x.add_edge('D', 'F', 2)
-# x.add_edge('C', 'D', 2)
-# x.add_edge('C', 'F', 4)
-#
-# print(dijkstra2(x, 'B', 'F', False))
