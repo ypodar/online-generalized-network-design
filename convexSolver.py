@@ -2,11 +2,10 @@ import cvxpy as cp
 import random
 import main
 from math import e
-import gurobipy as gb
-from gurobipy import GRB
 
 # (initial, end, weight), (s,t), ((initial, end) : alpha)
-network, outputpairs, nodes, alpha, qval, sigma = main.algo_main()
+k = 15
+network, outputpairs, nodes, alpha, qval, sigma = main.networkGen(k)
 
 # make a dictionary for flow where key = (initial, end , weight) from network
 # nested dictionary for x(i,e) values. main key = (s, t) from output pairs
@@ -16,7 +15,6 @@ flow = {}
 xval = {}
 constraints = []
 k = len(outputpairs)
-linModel = gb.Model("Linear Model")
 alpha_max = max(alpha.values())
 flow_lin = {}
 xval_lin = {}
@@ -24,23 +22,10 @@ z = {}
 lin_obj = []
 for j in outputpairs:
     xval[j] = {}
-    xval_lin[j] = {}
     for i in network:
         xval[j][i] = cp.Variable(nonneg=True)
-
-        xval_lin[j][i] = linModel.addVar()
-        linModel.addConstr(xval_lin[j][i] >= 0)
 for i in network:
     flow[i] = cp.Variable(nonneg=True)
-
-    flow_lin[i] = linModel.addVar()
-    linModel.addConstr(flow_lin[i] >= 0)
-    z[i] = {}
-    for l in range(1, k + 1):
-        z[i][l] = linModel.addVar()
-        lin_obj.append((l ** alpha_max) * z[i][l])
-        linModel.addConstr((k * z[i][l]) - (flow[i] - l + 1) >= 0)
-        linModel.addConstr((k * (1 - z[i][l])) - l + flow[i] >= 0)
 
 
 objsum = 0
@@ -90,7 +75,3 @@ x = problem1.solve()
 print("Convex Program Value 2:", x)
 print("relaxed value: ", (x / (1 + (2 * (e ** -2)))))
 
-
-linModel.setObjective(sum(lin_obj))
-linModel.optimize()
-print("Integer Model:", linModel.objVal)
