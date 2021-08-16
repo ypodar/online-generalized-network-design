@@ -192,6 +192,7 @@ def fileGen(edges, networkname, vtype, k, num):
     f.write(str(outputpairs) + "\n")
     # f.write(": Pairs")
     f.close()
+    print(string)
     return string
 
 # reads from a file, compute

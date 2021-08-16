@@ -8,25 +8,26 @@ abilene = [(1, 0), (1, 3), (0, 3), (0, 2), (2, 5), (3, 4), (4, 5), (4, 6), (5, 7
 nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), (4, 6), (5, 7), (5, 12), (6, 8), (7, 9),
        (8, 9), (9, 13), (9, 11), (10, 13), (11, 12), (12, 13)]  # 14 nodes
 # network: list(start, end, weight), outputpairs: list(s,t), alpha: dict(edge:alphaval), qval: dict(edge:qval)
-numPairs = 10 # run between 5, 10, and 20
-# network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, abilene)
 
 # to run reader - change between nsf and abilene for first 2 parameters. c/d for 3rd, # of pairs to generate for 4th,
 # and instance # for 5th
-network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(abilene, "abilene", "c", numPairs, 4))
+numPairs = 20 # run between 5, 10, and 20
+network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(nsf, "nsf", "d", numPairs, 1))
 # network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(".txt")
+# network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, abilene)
 
 print("----------Algorithm----------")
 output = {}
 print("Pairs:", numPairs)
 for x in range(10):
     random.shuffle(outputpairs)
-    if output.get(main.algo_main(network, outputpairs, alpha, qval, sigma)) is None:
-        output[main.algo_main(network, outputpairs, alpha, qval, sigma)] = 1
-    else:
-        output[main.algo_main(network, outputpairs, alpha, qval, sigma)] += 1
+    # if output.get(main.algo_main(network, outputpairs, alpha, qval, sigma)) is None:
+    #     output[main.algo_main(network, outputpairs, alpha, qval, sigma)] = 1
+    # else:
+    #     output[main.algo_main(network, outputpairs, alpha, qval, sigma)] += 1
+    print(main.algo_main(network, outputpairs, alpha, qval, sigma))
 
-print(output)
+#print(output)
 
 print("----------Integer Program----------")
 lin_network = gb.tuplelist(network)
