@@ -12,25 +12,27 @@ nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), 
 # to run reader - change between nsf and abilene for first 2 parameters. c/d for 3rd, # of pairs to generate for 4th,
 # and instance # for 5th
 numPairs = 20 # run between 5, 10, and 20
-network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(nsf, "nsf", "d", numPairs, 1))
+#network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(nsf, "nsf", "d", numPairs, 1))
+network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("nsf_d_k20_1.txt")
 # network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(".txt")
 # network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, abilene)
 
-print("----------Algorithm----------")
-output = {}
-print("Pairs:", numPairs)
-for x in range(10):
-    random.shuffle(outputpairs)
-    # if output.get(main.algo_main(network, outputpairs, alpha, qval, sigma)) is None:
-    #     output[main.algo_main(network, outputpairs, alpha, qval, sigma)] = 1
-    # else:
-    #     output[main.algo_main(network, outputpairs, alpha, qval, sigma)] += 1
-    print(main.algo_main(network, outputpairs, alpha, qval, sigma))
+# print("----------Algorithm----------")
+# output = {}
+# print("Pairs:", numPairs)
+# for x in range(10):
+#     random.shuffle(outputpairs)
+#     # if output.get(main.algo_main(network, outputpairs, alpha, qval, sigma)) is None:
+#     #     output[main.algo_main(network, outputpairs, alpha, qval, sigma)] = 1
+#     # else:
+#     #     output[main.algo_main(network, outputpairs, alpha, qval, sigma)] += 1
+#     print(main.algo_main(network, outputpairs, alpha, qval, sigma))
 
 #print(output)
 
 print("----------Integer Program----------")
 lin_network = gb.tuplelist(network)
+# create undirected network (remove the j, i edges for each i, j)
 linModel = gb.Model("Integer Program")
 flow = linModel.addVars(lin_network, vtype=GRB.CONTINUOUS, name="Flow", lb=0)
 xval = {}
@@ -60,6 +62,8 @@ for edge in network:
         linModel.addConstr(k * (1 - z[edge][i]) >= i - flow[edge])
         linModel.addConstr(k * (1 - z[edge][i]) >= flow[edge] - i)
 
+# calculate flow of edge i, j and j, i (but don't double count - only count for 1 edge)
+# could use only when i < j
 linModel.setObjective(gb.quicksum(gb.quicksum(((z[edge][i] * (i ** alpha[(edge[0], edge[1])])) for i in tuple_i)) +
                                   (sigma[(edge[0], edge[1])] * (1 - z[edge][0])) for
                                   edge in lin_network), GRB.MINIMIZE)
@@ -67,3 +71,9 @@ linModel.setParam("OutputFlag", 0)  # turn off output reporting
 linModel.optimize()
 
 print(linModel.objVal)
+print("Network")
+print(network)
+print("Xval")
+print(xval)
+print("Z")
+print(z)

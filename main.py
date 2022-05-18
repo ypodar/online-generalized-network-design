@@ -19,10 +19,16 @@ class aList:
     def add_edge(self, from_node, to_node, weight):
         # Note: assumes edges are uni-directional
         self.edges[from_node].append(to_node)
-        # self.edges[to_node].append(from_node)
+        self.edges[to_node].append(from_node)
         self.weights[(from_node, to_node)] = weight
-        # self.weights[(to_node, from_node)] = weight
+        self.weights[(to_node, from_node)] = weight
         self.load[(from_node, to_node)] = 0
+        self.load[(to_node, from_node)] = 0
+    def add_edge(self, from_node, to_node):
+        self.edges[from_node].append(to_node)
+        self.edges[to_node].append(from_node)
+        self.load[(from_node, to_node)] = 0
+        self.load[(to_node, from_node)] = 0
 
 
 # finds shortest path between initial and end node, default is using graph.psi, else uses graph.weights
@@ -68,8 +74,8 @@ def dijkstra2(graph, initial, end, psi=True):
 
 # string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnoqrstuvwxyz"
 max_weight = 15
-max_nodes = 5
-num_edges = random.randint(max_nodes, (max_nodes * (max_nodes - 1)))
+max_nodes = 50
+num_edges = 150
 
 
 # generates a strong network, returns a list with tuples in the form (initial, end, weight)
@@ -138,6 +144,7 @@ def networkGen(k):
 # takes in edges as a list of (start, node) points. Generates network with each edge and weight, alpha, qval, sigma and
 # k pairs. vtype is 'c' for continuous alpha values [1.1, 3], 'd' for discrete alpha values = [2,3]
 # defaults to continuous alpha values
+# output pairs is list of nodes to run data to/from
 def networkGen2(k, edges, vtype="c"):
     network = []
     nodes = []
@@ -178,12 +185,68 @@ def networkGen2(k, edges, vtype="c"):
     # print("Nodes:", max_nodes)
     return network, outputpairs, nodes, alpha, qval, sigma
 
+def networkGen3(k, edges, nodes, vtype="c"):
+    # network = []
+    # nodes = []
+    alpha = {}
+    sigma = {}
+    # qval = {}
+    outputpairs = []
+    for i in edges:
+        # networkGen3 takes in input for nodes used
+        # if i[0] not in nodes:
+        #     nodes.append(i[0])
+        # if i[1] not in nodes:
+        #     nodes.append(i[1])
+
+        # weight needed to work with current algorithm implementation - can be removed by editing how networks are read
+        # in by the aList() class
+        # network.append((i[0], i[1], random.randint(1, max_weight)))
+        # append reverse direction (disregard as considering undirected graph)
+        # network.append((i[1], i[0], random.randint(1, max_weight)))
+        temp = (i[1], i[0])
+        if vtype.lower() == "d":
+            # discrete
+            alpha[i] = random.randint(2, 3)
+        else:
+            # continuous
+            alpha[i] = random.uniform(1.1, 3)
+        sigma[i] = random.uniform(1, (0.3 * k) ** alpha[i])
+        # qval[i] = sigma[i] ** (1 / alpha[i])
+        alpha[temp] = alpha[i]
+        sigma[temp] = sigma[i]
+        # qval[temp] = qval[i]
+    j = 0
+    while j < k:
+        s = random.choice(nodes)
+        t = random.choice(nodes)
+        if s != t and (s, t) not in outputpairs:
+            outputpairs.append((s, t))
+            j += 1
+    return outputpairs, nodes, alpha, sigma
+
+def generateEdges(numNodes, numEdges):
+    nodes = []
+    for i in range(numNodes):
+        nodes.append(i)
+    j = 0
+    edges = []
+    while j < numEdges:
+        a = random.choice(nodes)
+        b = random.choice(nodes)
+        if a != b and (a, b) not in edges and (b, a) not in edges:
+            edges.append((a, b))
+            j += 1
+    return nodes, edges
 
 # network: abilene/nsf, vtype:continuous(c) or discrete(d) alpha values, k: num of pairs, num: instance #
 # alpha, sigma, and pairs to be written to file
-def fileGen(edges, networkname, vtype, k, num):
-    network, outputpairs, nodes, alpha, qval, sigma = networkGen2(k, edges, vtype)
+def fileGen(edges, nodes, networkname, vtype, k, num):
+    # network, outputpairs, nodes, alpha, qval, sigma = networkGen2(k, edges, vtype)
+    outputpairs, nodes, alpha, sigma = networkGen3(k, edges, nodes, vtype)
     string = networkname + "_" + vtype + "_k" + str(k) + "_" + str(num) + ".txt"
+
+    # edit to write in nodes
     f = open(string, "w+")
     f.write(str(alpha) + "\n")
     # f.write(": Alpha\n")
@@ -191,7 +254,9 @@ def fileGen(edges, networkname, vtype, k, num):
     # f.write(": Sigma\n")
     f.write(str(outputpairs) + "\n")
     # f.write(": Pairs")
+    f.write(str(nodes) + "\n")
     f.close()
+
     print(string)
     return string
 
@@ -202,6 +267,7 @@ def fileRead(filename):
     alpha = ast.literal_eval(f.readline())
     sigma = ast.literal_eval(f.readline())
     pairs = ast.literal_eval(f.readline())
+    #nodes = ast.literal_eval(f.readline())
     nodes = []
     network = []
     qval = {}
@@ -212,7 +278,10 @@ def fileRead(filename):
             nodes.append(i[1])
         # weight needed to work with current algorithm implementation - can be removed by editing how networks are read
         # in by the aList() class
-        network.append((i[0], i[1], random.randint(1, max_weight)))
+
+        # ensure only done once
+        # network.append((i[0], i[1], random.randint(1, max_weight)))
+        network.append((i[0], i[1]))
         qval[i] = sigma[i] ** (1 / alpha[i])
     return network, pairs, nodes, alpha, qval, sigma
 
@@ -238,6 +307,7 @@ def algorithm(graph, pair, alpha, qval):
     path = dijkstra2(graph, pair[0], pair[1])
     for i in range(len(path) - 1):
         graph.load[(path[i], path[i + 1])] += 1
+        graph.load[(path[i+1], path[i])] += 1
     return path
 
 
@@ -255,3 +325,7 @@ def algo_main(network, pairs, alpha, qval, sigma):
         if x.load[j] >= 1:
             algo_sum += sigma[j]
     return algo_sum
+
+# 50 nodes, 150 edges
+# nodes, edges = generateEdges(50, 150)
+# network, outputpairs, newnodes, alpha, qval, sigma = fileRead(fileGen(edges, nodes, "test", 'c', 25, 1))
