@@ -34,16 +34,17 @@ class aList:
 # finds shortest path between initial and end node, default is using graph.psi, else uses graph.weights
 # returns path in the form of [initial, ... , end]
 def dijkstra2(graph, initial, end, psi=True):
+    # shortest_paths is the dictionary that stores current best paths
     shortest_paths = {initial: (None, 0)}
     current_node = initial
     visited = set()
 
     while current_node != end:
         visited.add(current_node)
-        destinations = graph.edges[current_node]
+        neighbors = graph.edges[current_node]
         weight_to_current_node = shortest_paths[current_node][1]
 
-        for next_node in destinations:
+        for next_node in neighbors:
             if psi:
                 weight = graph.psi[(current_node, next_node)] + weight_to_current_node
             else:
@@ -267,15 +268,15 @@ def fileRead(filename):
     alpha = ast.literal_eval(f.readline())
     sigma = ast.literal_eval(f.readline())
     pairs = ast.literal_eval(f.readline())
-    #nodes = ast.literal_eval(f.readline())
-    nodes = []
+    nodes = ast.literal_eval(f.readline())
+    # nodes = []
     network = []
     qval = {}
     for i in alpha:
-        if i[0] not in nodes:
-            nodes.append(i[0])
-        if i[1] not in nodes:
-            nodes.append(i[1])
+        # if i[0] not in nodes:
+        #     nodes.append(i[0])
+        # if i[1] not in nodes:
+        #     nodes.append(i[1])
         # weight needed to work with current algorithm implementation - can be removed by editing how networks are read
         # in by the aList() class
 
@@ -314,12 +315,18 @@ def algorithm(graph, pair, alpha, qval):
 # generates a network and pairs, continues to run until all pairs are completed
 def algo_main(network, pairs, alpha, qval, sigma):
     x = aList()
+    undirected_network = []
+    for i in range(len(network)):
+        a = network[i]
+        if network[i] not in undirected_network and (a[1], a[0]) not in undirected_network:
+            undirected_network.append(network[i])
     algo_sum = 0
     for edge in network:
         x.add_edge(*edge)
     for i in pairs:
         algorithm(x, i, alpha, qval)
-    for j in alpha:
+    # create and use undirected_network again here. Calculate algo_sum using undirected (not alpha)
+    for j in undirected_network:
         #  algo_sum += x.weights[j] * (x.load[j] ** alpha[j])
         algo_sum += x.load[j] ** alpha[j]
         if x.load[j] >= 1:
