@@ -12,9 +12,9 @@ nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), 
 # to run reader - change between nsf and abilene for first 2 parameters. c/d for 3rd, # of pairs to generate for 4th,
 # and instance # for 5th
 numPairs = 20 # run between 5, 10, and 20
-temp_nodes, temp_edges = main.generateEdges(10,30)
+# temp_nodes, temp_edges = main.generateEdges(10,30)
 # network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(temp_edges, temp_nodes, "test1", "c", numPairs, 1))
-network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("nsf_c_k20_1.txt")
+network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("nsf_d_k20_2.txt")
 # network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(".txt")
 # network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, abilene)
 

@@ -298,8 +298,8 @@ def psicalc(graph, alpha, qval):
         for t_node in graph.edges[f_node]:
             graph.psi[(f_node, t_node)] = \
                 qval[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1) \
-                    + alpha[(f_node, t_node)] * (graph.load[(f_node, t_node)]) ** (alpha[(f_node, t_node)] - 1) \
-                        + (alpha[(f_node, t_node)] ** alpha[(f_node, t_node)]) / e
+                    + alpha[(f_node, t_node)] * (graph.load[(f_node, t_node)] / (e*alpha[(f_node, t_node)])) ** (alpha[(f_node, t_node)] - 1) \
+                        + alpha[(f_node, t_node)] / (e ** alpha[(f_node, t_node)]) 
             # # old psi calculation 
             # graph.psi[(f_node, t_node)] = (qval[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)) * (1 + (1 / e)) \
             #                               + (alpha[(f_node, t_node)] * (
