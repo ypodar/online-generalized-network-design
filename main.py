@@ -292,14 +292,16 @@ def fileRead(filename):
 def psicalc(graph, alpha, qval):
     for f_node in graph.edges:
         for t_node in graph.edges[f_node]:
-            graph.psi[(f_node, t_node)] = (qval[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)) * (1 + (1 / e)) \
-                                          + (alpha[(f_node, t_node)] * (
-                    graph.load[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)))
-            + ((alpha[(f_node, t_node)] ** alpha[(f_node, t_node)]) / e)
-            # old psi calculation (without sigma values)
-            # graph.psi[(f_node, t_node)] = (alpha * (graph.load[(f_node, t_node)] ** (alpha - 1)) +
-            # ((alpha ** alpha) / e)) * graph.weights[(f_node, t_node)]
-
+            graph.psi[(f_node, t_node)] = \
+                qval[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1) \
+                    + alpha[(f_node, t_node)] * (graph.load[(f_node, t_node)]) ** (alpha[(f_node, t_node)] - 1) \
+                        + (alpha[(f_node, t_node)] ** alpha[(f_node, t_node)]) / e
+            # # old psi calculation 
+            # graph.psi[(f_node, t_node)] = (qval[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)) * (1 + (1 / e)) \
+            #                               + (alpha[(f_node, t_node)] * (
+            #         graph.load[(f_node, t_node)] ** (alpha[(f_node, t_node)] - 1)))
+            # + ((alpha[(f_node, t_node)] ** alpha[(f_node, t_node)]) / e)
+           
 
 # takes in a pair, performs psi calculation, finds shortest path for pair and then updates graph.load
 # returns path taken for storing

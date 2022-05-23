@@ -13,8 +13,8 @@ nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), 
 # and instance # for 5th
 numPairs = 20 # run between 5, 10, and 20
 temp_nodes, temp_edges = main.generateEdges(10,30)
-network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(temp_edges, temp_nodes, "test1", "c", numPairs, 1))
-#network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("nsf_d_k20_1.txt")
+# network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(temp_edges, temp_nodes, "test1", "c", numPairs, 1))
+network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("nsf_c_k20_1.txt")
 # network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(".txt")
 # network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, abilene)
 
@@ -48,7 +48,8 @@ for i in outputpairs:
     xval[i] = linModel.addVars(lin_network, vtype=GRB.BINARY)
 for j in undirected_network:
     z[j] = linModel.addVars(tuple_i, vtype=GRB.BINARY)
-    linModel.addConstr(flow[j] == gb.quicksum(xval[pair][j] for pair in outputpairs))
+    reverse_arc = (j[1], j[0])
+    linModel.addConstr(flow[j] == gb.quicksum(xval[pair][j] + xval[pair][reverse_arc] for pair in outputpairs))
 for path in xval:
     for node in nodes:
         if node == path[0]:
