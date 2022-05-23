@@ -5,6 +5,7 @@
 from collections import defaultdict
 import random
 from math import e
+import numpy
 import ast
 
 
@@ -58,7 +59,8 @@ def dijkstra2(graph, initial, end, psi=True):
 
         next_destinations = {node: shortest_paths[node] for node in shortest_paths if node not in visited}
         if not next_destinations:
-            return "Route Not Possible"
+            print("Route Not Possible")
+            return
         # next node is the destination with the lowest weight
         current_node = min(next_destinations, key=lambda k: next_destinations[k][1])
 
@@ -226,7 +228,9 @@ def networkGen3(k, edges, nodes, vtype="c"):
             j += 1
     return outputpairs, nodes, alpha, sigma
 
-def generateEdges(numNodes, numEdges):
+def generateEdges(numNodes):
+    numEdges = int(numNodes * numpy.log(numNodes)) + 1
+    # ensure this is connected
     nodes = []
     for i in range(numNodes):
         nodes.append(i)
