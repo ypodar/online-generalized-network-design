@@ -11,21 +11,15 @@ nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), 
 
 # to run reader - change between nsf and abilene for first 2 parameters. c/d for 3rd, # of pairs to generate for 4th,
 # and instance # for 5th
-numPairs = 20 # run between 5, 10, and 20
-# temp_nodes, temp_edges = main.generateEdges(10,30)
-# network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(temp_edges, temp_nodes, "test1", "c", numPairs, 1))
-network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("nsf_d_k20_2.txt")
-# network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(".txt")
-# network, outputpairs, nodes, alpha, qval, sigma = main.networkGen2(numPairs, abilene)
+numPairs = 40 # run between 5, 10, and 20
+temp_nodes, temp_edges = main.generateEdges(100)
+# network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(temp_edges, temp_nodes, "test", "c", numPairs, 2))
+network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("random_n50_c_k20_1.txt")
 
 print("----------Algorithm----------")
 print("Pairs:", numPairs)
 for x in range(10):
     random.shuffle(outputpairs)
-    # if output.get(main.algo_main(network, outputpairs, alpha, qval, sigma)) is None:
-    #     output[main.algo_main(network, outputpairs, alpha, qval, sigma)] = 1
-    # else:
-    #     output[main.algo_main(network, outputpairs, alpha, qval, sigma)] += 1
     print(main.algo_main(network, outputpairs, alpha, qval, sigma))
 
 
@@ -37,7 +31,6 @@ for i in range(len(network)):
         undirected_network.append(network[i])
 lin_network = gb.tuplelist(network)
 lin_undirected_network = gb.tuplelist(undirected_network)
-# create undirected network (remove the j, i edges for each i, j)
 linModel = gb.Model("Integer Program")
 flow = linModel.addVars(lin_network, vtype=GRB.CONTINUOUS, name="Flow", lb=0)
 xval = {}
@@ -74,10 +67,16 @@ for edge in undirected_network:
 linModel.setObjective(gb.quicksum(gb.quicksum(((z[edge][i] * (i ** alpha[(edge[0], edge[1])])) for i in tuple_i)) +
                                   (sigma[(edge[0], edge[1])] * (1 - z[edge][0])) for
                                   edge in lin_undirected_network), GRB.MINIMIZE)
-linModel.setParam("OutputFlag", 0)  # turn off output reporting
+# linModel.setParam("OutputFlag", 0)  # turn off output reporting
+linModel.setParam('TimeLimit', 500)
 linModel.optimize()
 
+print("Objective Value:")
 print(linModel.objVal)
+print("Best Lower Bound:")
+print(linModel.ObjBound)
+print("Runtime:")
+print(linModel.Runtime)
 # print("Network")
 # print(network)
 # print("Xval")
