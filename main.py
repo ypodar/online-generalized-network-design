@@ -232,34 +232,6 @@ def algo_main(network, pairs, alpha, qval, sigma):
             algo_sum += sigma[j]
     return algo_sum
 
-rerun_list = [
-    "runs/abilene_c_k5_1.txt",
-    "runs/abilene_c_k5_2.txt",
-    "runs/abilene_c_k10_1.txt",
-    "runs/abilene_c_k10_2.txt",
-    "runs/abilene_c_k20_1.txt",
-    "runs/abilene_c_k20_2.txt",
-    "runs/abilene_d_k5_1.txt",
-    "runs/abilene_d_k5_2.txt",
-    "runs/abilene_d_k10_1.txt",
-    "runs/abilene_d_k10_2.txt",
-    "runs/abilene_d_k20_1.txt",
-    "runs/abilene_d_k20_2.txt",
-    "runs/nsf_c_k5_1.txt",
-    "runs/nsf_c_k5_2.txt",
-    "runs/nsf_c_k10_1.txt",
-    "runs/nsf_c_k10_2.txt",
-    "runs/nsf_c_k20_1.txt",
-    "runs/nsf_c_k20_2.txt",
-    "runs/nsf_d_k5_1.txt",
-    "runs/nsf_d_k5_2.txt",
-    "runs/nsf_d_k10_1.txt",
-    "runs/nsf_d_k10_2.txt",
-    "runs/nsf_d_k20_1.txt",
-    "runs/nsf_d_k20_2.txt"
-]
-
-
 def algorithm_run(network, outputpairs, alpha, qval, sigma):
     print("----------Algorithm----------")
     for x in range(10):
@@ -351,13 +323,13 @@ rerun_list = [
     "runs/nsf_d_k20_1.txt",
     "runs/nsf_d_k20_2.txt"
 ]
-#
-# for file in rerun_list:
-#     print(file)
-#     network, outputpairs, nodes, alpha, qval, sigma = fileRead(file)
-#     algorithm_run(network, outputpairs, alpha, qval, sigma)
-#     IPrun(network, outputpairs, alpha, qval, sigma)
-#     print("--------------------------------")
+
+for file in rerun_list:
+    print(file)
+    network, outputpairs, nodes, alpha, qval, sigma = fileRead(file)
+    algorithm_run(network, outputpairs, alpha, qval, sigma)
+    IPrun(network, outputpairs, alpha, qval, sigma)
+    print("--------------------------------")
 
 abilene = [(1, 0), (1, 3), (0, 3), (0, 2), (2, 5), (3, 4), (4, 5), (4, 6), (5, 7), (6, 8), (7, 9), (8, 9)]  # 10 nodes
 nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), (4, 6), (5, 7), (5, 12), (6, 8), (7, 9),
