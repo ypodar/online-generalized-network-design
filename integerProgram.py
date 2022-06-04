@@ -14,7 +14,7 @@ nsf = [(0, 1), (0, 8), (0, 2), (1, 3), (1, 2), (2, 5), (3, 4), (3, 10), (4, 5), 
 numPairs = 40 # run between 5, 10, and 20
 temp_nodes, temp_edges = main.generateEdges(100)
 # network, outputpairs, nodes, alpha, qval, sigma = main.fileRead(main.fileGen(temp_edges, temp_nodes, "test", "c", numPairs, 2))
-network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("random_n50_c_k20_1.txt")
+network, outputpairs, nodes, alpha, qval, sigma = main.fileRead("random runs/random_n50_c_k20_1.txt")
 
 print("----------Algorithm----------")
 print("Pairs:", numPairs)
