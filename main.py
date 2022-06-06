@@ -3,6 +3,7 @@ import random
 from math import e
 import numpy
 import ast
+import time as tm
 import gurobipy as gb
 from gurobipy import GRB
 
@@ -234,14 +235,28 @@ def algo_main(network, pairs, alpha, qval, sigma):
 
 def algorithm_run(network, outputpairs, alpha, qval, sigma):
     print("----------Algorithm----------")
-    for x in range(10):
+    tot_cost=0
+    max_cost=0
+    min_cost=float('inf')
+    start_time=tm.time()
+    for x in range(50):
         random.shuffle(outputpairs)
-        print(algo_main(network, outputpairs, alpha, qval, sigma))
+        new_cost=algo_main(network, outputpairs, alpha, qval, sigma)
+        # print(new_cost)
+        tot_cost = tot_cost + new_cost
+        max_cost = max(max_cost , new_cost)
+        min_cost = min(min_cost , new_cost)
+    end_time=tm.time()
+    print("average = "+str(tot_cost/50.0))
+    print("max = "+str(max_cost))
+    print("min = "+str(min_cost))
+    print("avg time ="+str((end_time-start_time)/50))
 
 
 
 def IPrun(network, outputpairs, alpha, qval, sigma):
     print("----------Integer Program----------")
+    ip_start=tm.time()
     undirected_network = []
     for i in range(len(network)):
         a = network[i]
@@ -289,39 +304,38 @@ def IPrun(network, outputpairs, alpha, qval, sigma):
     # time limit is only for computation, model building time is not included
     linModel.setParam('TimeLimit', 500)
     linModel.optimize()
+    ip_end=tm.time()
 
     print("Objective Value:")
     print(linModel.objVal)
     print("Best Lower Bound:")
     print(linModel.ObjBound)
-    print("Runtime:")
+    print("Runtime for solve:")
     print(linModel.Runtime)
+    print("Runtime total:")
+    print(ip_end-ip_start)
 
 rerun_list = [
-    "runs/abilene_c_k5_1.txt",
-    "runs/abilene_c_k5_2.txt",
-    "runs/abilene_c_k10_1.txt",
-    "runs/abilene_c_k10_2.txt",
-    "runs/abilene_c_k20_1.txt",
-    "runs/abilene_c_k20_2.txt",
-    "runs/abilene_d_k5_1.txt",
-    "runs/abilene_d_k5_2.txt",
-    "runs/abilene_d_k10_1.txt",
-    "runs/abilene_d_k10_2.txt",
-    "runs/abilene_d_k20_1.txt",
-    "runs/abilene_d_k20_2.txt",
-    "runs/nsf_c_k5_1.txt",
-    "runs/nsf_c_k5_2.txt",
-    "runs/nsf_c_k10_1.txt",
-    "runs/nsf_c_k10_2.txt",
-    "runs/nsf_c_k20_1.txt",
-    "runs/nsf_c_k20_2.txt",
-    "runs/nsf_d_k5_1.txt",
-    "runs/nsf_d_k5_2.txt",
-    "runs/nsf_d_k10_1.txt",
-    "runs/nsf_d_k10_2.txt",
-    "runs/nsf_d_k20_1.txt",
-    "runs/nsf_d_k20_2.txt"
+    # "runs/abilene_c_k5.txt",
+    # "runs/abilene_d_k5.txt",
+    # "runs/abilene_c_k10.txt",
+    # "runs/abilene_d_k10.txt",
+    # "runs/abilene_c_k20.txt",
+    # "runs/abilene_d_k20.txt",
+    # "runs/nsf_c_k5.txt",
+    # "runs/nsf_d_k5.txt",
+    # "runs/nsf_c_k10.txt",
+    # "runs/nsf_d_k10.txt",
+    # "runs/nsf_c_k20.txt",
+    # "runs/nsf_d_k20.txt",
+    # "runs/random_n50_c_k20.txt",
+    # "runs/random_n50_d_k20.txt",
+    # "runs/random_n50_c_k40.txt",
+    # "runs/random_n50_d_k40.txt",
+    # "runs/random_n100_c_k20.txt",
+    # "runs/random_n100_d_k20.txt",
+    # "runs/random_n100_c_k40.txt",
+    # "runs/random_n100_d_k40.txt",
 ]
 
 for file in rerun_list:
